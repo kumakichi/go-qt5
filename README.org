@@ -1,0 +1,107 @@
+* About
+
+  This repository is just a demo to show how to *combine QT5 and golang with CGO* in mainstream Desktop OS(Mac/Linux/MS)
+
+  The idea comes from @nulijiabei
+
+* Technical Details
+
+** how it works
+
+   In one word, compile QT code into dynamic library file, call library in golang
+
+** for unix-like os
+
+*** use cpp functions in go
+    
+    in cpp file, use a prefix *<extern "C">*, this keyword determines how symbols in the generated object file should be named
+
+    #+BEGIN_SRC cpp
+      extern "C" int c_fun()
+      {
+          printf("Hello World");
+      }
+    #+END_SRC
+
+    in go file, just the normal way to use cgo
+    #+BEGIN_SRC go
+      /*
+          extern "C" int c_fun();
+      ,*/
+      import "C"
+      
+      func demo() {
+          C.c_fun()
+      }
+    #+END_SRC
+
+*** use go functions in cpp
+
+    in go file, export function
+    #+BEGIN_SRC go
+      //export go_add_fun
+      func go_add_fun(a, b C.int) C.int {
+          fmt.Println("I'm written in golang, 2 int args, 1 int return value, called by QT.")
+          return a + b
+      }
+    #+END_SRC
+
+    in cpp file, declare and use
+    #+BEGIN_SRC cpp
+      extern "C" void go_add_fun() {}
+      
+      int demo(void)
+      {
+          return go_add_fun(7, 8);
+      }
+    #+END_SRC
+
+** patch for the fucking MS OS
+
+   Unfortunately, it's not easy to use go functions in cpp under MS
+
+   The unix-like way will not work, we need to do some tricks
+
+   The key is: *passing go functions address to cpp library via cgo(i will describe this step in details), store it in global variables in library file*
+
+   Then, you can access go functions through these global variables(function pointers)
+
+   here is a code snippet:
+
+   cpp file
+
+   #+BEGIN_SRC cpp
+     typedef void (*NO_ARG_FUNC) ();
+     NO_ARG_FUNC global_pointer;
+     
+     extern "C" void bind_go_export_funcs(void *fn)
+     {
+         global_pointer = (NO_ARG_FUNC)fn;
+     }
+     
+     void demo(void)
+     {
+         global_pointer();
+     }
+   #+END_SRC
+
+   #+BEGIN_SRC go
+     /*
+     extern void go_hello();
+     static void fucking_ms_init()
+     {
+         bind_go_export_funcs(&go_hello); //store go func address to global variable in library file
+     }
+     ,*/
+     import "C"
+     
+     //export go_hello
+     func go_hello() {
+         fmt.Println("Hello from golang")
+     }
+     
+     func main() {
+         C.fucking_ms_init()
+         ...
+     }
+   #+END_SRC
