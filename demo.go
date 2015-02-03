@@ -1,27 +1,47 @@
 package main
 
 /*
-    extern int start(const char *typeName);
-    extern void qtDebug(const char *typeName);
+#include <stdio.h>
+#include <stdlib.h>
+
+extern int start(const char *typeName);
+extern void qtDebug(const char *typeName);
+
+extern void go_print_info();
+extern int go_add_fun(int, int);
+extern void bind_go_export_funcs_for_fucking_ms(int, void *);
+
+static void fucking_ms_init()
+{
+#define FUNC_NULL   0
+#define FUNC_TWO    2
+	bind_go_export_funcs_for_fucking_ms(FUNC_NULL, &go_print_info);
+	bind_go_export_funcs_for_fucking_ms(FUNC_TWO, &go_add_fun);
+}
 */
-// #include <stdio.h>
-// #include <stdlib.h>
 // #cgo LDFLAGS: -L./ -lqlib
 import "C"
 
 import (
-    "unsafe"
-    "fmt"
+	"fmt"
+	"unsafe"
 )
 
 func main() {
-    cTypeName := C.CString("xxoo")
-    C.qtDebug(cTypeName)
-    C.start(cTypeName)
-    C.free(unsafe.Pointer(cTypeName))
+	C.fucking_ms_init()
+	cTypeName := C.CString("call qDebug wrapper in golang")
+	C.qtDebug(cTypeName)
+	C.start(cTypeName)
+	C.free(unsafe.Pointer(cTypeName))
 }
 
-//export func_written_in_go
-func func_written_in_go() {
-    fmt.Println("I'm written in golang, but called by QT.")
+//export go_print_info
+func go_print_info() {
+	fmt.Println("I'm written in golang, No args, No return values, called by QT.")
+}
+
+//export go_add_fun
+func go_add_fun(a, b C.int) C.int {
+	fmt.Println("I'm written in golang, 2 int args, 1 int return value, called by QT.")
+	return a + b
 }
