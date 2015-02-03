@@ -8,7 +8,7 @@
 
 ** how it works
 
-   In one word, compile QT code into dynamic library file, call library in golang
+   In one word: *compile QT code into dynamic library file, call library in golang*
 
 ** for unix-like os
 
@@ -68,7 +68,7 @@
 
    here is a code snippet:
 
-   cpp file
+   cpp file, real code to store go func address
 
    #+BEGIN_SRC cpp
      typedef void (*NO_ARG_FUNC) ();
@@ -85,6 +85,8 @@
      }
    #+END_SRC
 
+   go file, passing address of go func to cpp library file
+ 
    #+BEGIN_SRC go
      /*
      extern void go_hello();
@@ -102,6 +104,6 @@
      
      func main() {
          C.fucking_ms_init()
-         ...
+p         ...
      }
    #+END_SRC

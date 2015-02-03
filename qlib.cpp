@@ -16,10 +16,6 @@ extern "C" void qtDebug(const char *typeName)
 	qDebug() << "Debug:" << typeName;
 }
 
-extern "C" void func_written_in_go()
-{
-}
-
 extern "C" int start(const char *typeName)
 {
 	int ret, argc = 0;
