@@ -104,6 +104,6 @@
      
      func main() {
          C.fucking_ms_init()
-p         ...
+         ...
      }
    #+END_SRC
