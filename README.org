@@ -4,6 +4,14 @@
 
   The idea comes from @nulijiabei
 
+* If build process failed
+
+  for \*nix users, check *LD_LIBRARY_PATH* environment variable
+
+  #+BEGIN_SRC sh
+    export LD_LIBRARY_PATH=/home/kumakichi/Android-Qt5.4.2/5.4/gcc_64/lib:$LD_LIBRARY_PATH # remember replace this with your own install path
+  #+END_SRC
+
 * Technical Details
 
 ** how it works
